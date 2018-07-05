@@ -1,5 +1,3 @@
-console.log('Starting notes.js');
-
 const fs = require('fs');
 // to be reused
 var fetchNotes = () => {
@@ -34,7 +32,7 @@ var addNote = (title, body) => {
 	}
 };
 var getAll = () => {
-	console.log('Getting all notes');
+	return fetchNotes();
 };
 var removeNote = (title) => {
 	var notes = fetchNotes();
