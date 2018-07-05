@@ -1,15 +1,15 @@
 {
-  "name": "notes-node",
+  "name": "yes",
   "version": "1.0.0",
-  "main": "app.js",
+  "description": "",
+  "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "ari",
+  "author": "",
   "license": "ISC",
-  "description": "",
   "dependencies": {
-    "lodash": "^4.17.10",
-    "yargs": "^4.7.1"
+    "request": "^2.87.0",
+    "yargs": "^4.8.1"
   }
 }

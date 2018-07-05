@@ -1,60 +1,37 @@
-// Node modules
-const fs = require('fs');
-const _ = require('lodash')
-const yargs = require('yargs');		// string leichter parsen
-// Own modules
-const notes = require('./notes.js');
+// npm 'request' module 
+const request = require('request');
+const yargs = require('yargs');
 
-const titleOptions = {
-		describe: 'Title of note',
-		demand: true,
-		alias: 't'
-};
-var bodyOptions = {
-		describe: 'Body of note',
-		demand: true,
-		alias: 'b'
-}
+// Konfiguration
 const argv = yargs
-	.command('add', 'Add a new note', { 
-		title: titleOptions, 
-		body: bodyOptions 
+	.options({
+		a: {
+			demand: true,
+			alias: 'address',
+			describe: 'Address to fetch weather for',
+			string: true
+		}
 	})
-	.command('list', 'List all notes')
-	.command('read', 'Read a note', { title: titleOptions })
-	.command('remove', 'Remove a note', { title: titleOptions })
 	.help()
+	.alias('help', 'h')
 	.argv;
-var command = argv._[0];	// with yargs; equals process.argv[2] 
 
-// Zugriff auf in notes.js definierte 'module.exports'
-if (command === 'add') {
-	var note = notes.addNote(argv.title, argv.body);
-	if (note) {
-		console.log('Note created:');
-		notes.logNote(note);
-	} else {
-		console.log('Note title taken');
+var encodedAddress = encodeURIComponent(argv.address); 
+
+
+// in http request: body = core data that was requested; response.body
+request({
+	url: `https://maps.googleapis.com/maps/api/geocode/json?address=${encodedAddress}`,
+	json: true
+}, (error, response, body) => {
+	if (error) {
+		console.log('Unable to connect to Google servers.');
+	// no "error", but [zero results] is part of "response"
+	} else if (body.status === 'ZERO_RESULTS') {
+		console.log('Unable to find that address.');
+	} else if (body.status === 'OK') {
+		console.log(`Address: ${body.results[0].formatted_address}`);
+		console.log(`Latitude: ${body.results[0].geometry.location.lat}`);
+		console.log(`Longitude: ${body.results[0].geometry.location.lng}`);
 	}
-} else if (command === 'list') {
-	var allNotes = notes.getAll();
-	console.log(`Printing ${allNotes.length} note(s)`);
-	allNotes.forEach((note) => notes.logNote(note));
-} else if (command === 'read') {
-	var note = notes.readNote(argv.title, argv.body);
-	if (note) {
-		console.log('Note found:');
-		notes.logNote(note);
-	} else {
-		console.log('Note not found');
-	} 
-} else if (command === 'remove') {
-	var noteRemoved = notes.removeNote(argv.title);
-	var message = noteRemoved ? 'Note was removed' : 'Note not found';
-	console.log(message);
-} else {
-	console.log('Command not recognized');
-}
-
-
-
+});
